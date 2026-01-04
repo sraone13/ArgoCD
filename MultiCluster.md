@@ -172,30 +172,31 @@ Copy code
 ## **10. Setup kubectl**
 
 ### **Download kubectl**
-
-```bash
+```
 curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.34.2/2025-11-13/bin/linux/arm64/kubectl
+```
 Download checksum
-bash
-Copy code
+```
 curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.34.2/2025-11-13/bin/linux/arm64/kubectl.sha256
-Verify checksum
-bash
-Copy code
+```
+Verify check
+```
 sha256sum -c kubectl.sha256
+```
 Apply execute permissions
-bash
-Copy code
+```
 chmod +x ./kubectl
+```
+
 Move binary to PATH
-bash
-Copy code
+```
 mkdir -p $HOME/bin
 cp ./kubectl $HOME/bin/kubectl
 export PATH=$HOME/bin:$PATH
-11. Setup eksctl
-bash
-Copy code
+```
+
+### **11. Setup eksctl
+```
 ARCH=amd64
 PLATFORM=$(uname -s)_$ARCH
 
@@ -206,74 +207,81 @@ curl -sL "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_ch
 
 tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp
 sudo install -m 0755 /tmp/eksctl /usr/local/bin
-12. Install AWS CLI
-bash
-Copy code
+```
+### **12. Install AWS CLI
+```
 sudo apt update && sudo apt upgrade -y
 sudo apt install unzip curl -y
-
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
 unzip awscliv2.zip
 sudo ./aws/install
+```
 Verify
-bash
-Copy code
+```
 aws --version
+```
 Configure AWS
-bash
-Copy code
+```
 aws configure
-13. EKS Cluster Creation (Example)
-bash
-Copy code
+```
+### **13. EKS Cluster Creation (Example)
+```
 eksctl create cluster --name hub-cluster --region us-west-1
+```
+```
 eksctl create cluster --name spoke-cluster-1 --region us-west-1
+```
+```
 eksctl create cluster --name spoke-cluster-2 --region us-west-2
+```
 Verify Clusters
-bash
-Copy code
+```
 kubectl config get-contexts | grep us-west
-14. Switch to Hub Cluster
-bash
-Copy code
-kubectl config use-context hub-cluster
-kubectl config current-context
-15. Install Argo CD
-bash
-Copy code
-kubectl create namespace argocd
+```
+### **14. Switch to Hub Cluster
 
+```
+kubectl config use-context hub-cluster
+```
+```
+kubectl config current-context
+```
+### **15. Install Argo CD
+```
+kubectl create namespace argocd
 kubectl apply -n argocd \
 -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+```
 Verify
-bash
-Copy code
+```
 kubectl get pods -n argocd
-16. Configure Argo CD Server (Insecure Mode)
-bash
-Copy code
+```
+### **16. Configure Argo CD Server (Insecure Mode)
+```
 kubectl get cm -n argocd
+```
+```
 kubectl edit configmap argocd-cmd-params-cm -n argocd
+```
 Add:
-
 yaml
 Copy code
 data:
   server.insecure: "true"
 Verify:
-
-bash
-Copy code
+```
 kubectl describe deployment argocd-server -n argocd
-17. Expose Argo CD UI
-bash
-Copy code
+```
+### **17. Expose Argo CD UI
+```
 kubectl get svc -n argocd
+```
+```
 kubectl edit svc argocd-server -n argocd
+```
 Change:
 
 yaml
-Copy code
 type: NodePort
 Copy NodePort IP and Port
 
@@ -281,27 +289,28 @@ Open in browser
 
 Update EC2 Security Group inbound rules if required
 
-18. Login to Argo CD UI
-bash
-Copy code
+### **18. Login to Argo CD UI
+```
 kubectl get secrets -n argocd
+```
+```
 kubectl describe secret argocd-initial-admin-secret -n argocd
+```
 Decode password:
-
-bash
-Copy code
+```
 echo <base64-password> | base64 --decode
+```
 Login details:
 
 Username: admin
 
 Password: decoded value
 
-19. Add Spoke Clusters to Argo CD
-bash
-Copy code
+### **19. Add Spoke Clusters to Argo CD
+```
 argocd login <ARGOCD_IP>:<PORT>
 argocd cluster add <spoke-cluster-context>
+```
 Repeat for all spoke clusters.
 
 Verify in UI:
@@ -310,7 +319,7 @@ Settings → Clusters
 
 Refresh → All clusters visible
 
-20. Deploy Application to Multiple Clusters
+### **20. Deploy Application to Multiple Clusters
 Steps
 Create application in Argo CD UI
 
@@ -328,15 +337,16 @@ Namespace
 
 Repeat for other clusters
 
-21. Verification
-bash
-Copy code
+### **21. Verification
+
+```
 kubectl get pods
+```
 Update YAML in Git
 
 Argo CD syncs changes automatically (within ~3 minutes)
 
-22. Summary
+### **22. Summary
 CI → Git
 
 CD → Argo CD
