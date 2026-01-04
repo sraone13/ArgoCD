@@ -225,6 +225,7 @@ Configure AWS
 aws configure
 ```
 ### **13. EKS Cluster Creation (Example)
+IAM user you need to give the EKS access but for now give the AdministratorAccess.
 ```
 eksctl create cluster --name hub-cluster --region us-west-1
 ```
@@ -356,3 +357,14 @@ Git is the single source of truth
 No manual cluster changes
 
 Secure, scalable, and auditable deployments
+
+
+Afer practice delete the eks Setup
+### **23.EKS Clusters Deletion
+```
+eksctl delete cluster --name hub-cluster --region us-west-1
+
+eksctl delete cluster --name spoke-cluster-1 --region us-west-1
+
+eksctl delete cluster --name spoke-cluster-2 --region us-west-1
+```
