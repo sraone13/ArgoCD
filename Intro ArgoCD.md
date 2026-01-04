@@ -5,6 +5,8 @@ GitOps is a practice that uses Git as a single source of truth to deliver and ma
 	The system automatically syncs the desired state from Git to the runtime environment (like Kubernetes).
 
 
+
+
 2.	Why GitOps?
 
 	When we commit code to Git, changes are tracked.
@@ -12,6 +14,8 @@ GitOps is a practice that uses Git as a single source of truth to deliver and ma
 	CI pipelines have tracking, but traditional CD does not.
 	GitOps solves this by ensuring all deployments happen via Git.
 	👉 GitOps is also used for infrastructure management.
+
+
 
 3.	GitOps Workflow (High Level)
 
@@ -21,6 +25,8 @@ GitOps is a practice that uses Git as a single source of truth to deliver and ma
 	GitOps tool (Argo CD) detects changes in Git.
 	Argo CD deploys the changes to the Kubernetes cluster.
 	Argo CD continuously ensures Git state == cluster state.
+
+
 
 4.	GitOps Principles
 1. Declarative:
@@ -44,9 +50,14 @@ Desired state (Git)
 Actual state (Cluster)
 If drift is detected, it is automatically corrected.
 
+
+
 5.	Is GitOps Only for Kubernetes?
 
 No, GitOps is a general principle.
+
+
+
 
 6.	However, popular GitOps tools like Argo CD and Flux mainly target Kubernetes.
 
@@ -57,12 +68,18 @@ Automatic upgrades
 Auto-healing of unwanted changes
 Continuous reconciliation
 
+
+
+
 7.	Popular GitOps Tools:
 
 Argo CD
 Flux
 Jenkins ❌ (Not GitOps-native)
 Spinnaker (supports GitOps patterns but not pure GitOps)
+
+
+
 
 8.	GitOps in a Nutshell:
 Git  <----sync----  Argo CD  ----sync---->  Kubernetes
