@@ -1,117 +1,170 @@
-1.	What is GitOps?
-GitOps is a practice that uses Git as a single source of truth to deliver and manage applications and infrastructure.
-	All changes are made through Git.
-	Git maintains history, tracking, and versioning.
-	The system automatically syncs the desired state from Git to the runtime environment (like Kubernetes).
+1️⃣ What is GitOps?
 
+GitOps is a practice that uses Git as the single source of truth to deliver and manage applications and infrastructure.
 
+Key Points
 
+All changes are made only through Git
 
-2.	Why GitOps?
+Git provides:
 
-	When we commit code to Git, changes are tracked.
-	But when changes are made directly in Kubernetes, there is no tracking.
-	CI pipelines have tracking, but traditional CD does not.
-	GitOps solves this by ensuring all deployments happen via Git.
-	👉 GitOps is also used for infrastructure management.
+Versioning
 
+Change history
 
+Traceability
 
-3.	GitOps Workflow (High Level)
+The system automatically syncs the desired state from Git to the runtime environment (e.g., Kubernetes)
 
-	DevOps Engineer updates Kubernetes YAML manifests in GitHub.
-	A Pull Request is created.
-	Team member reviews and approves the PR.
-	GitOps tool (Argo CD) detects changes in Git.
-	Argo CD deploys the changes to the Kubernetes cluster.
-	Argo CD continuously ensures Git state == cluster state.
+2️⃣ Why GitOps?
+Problems Without GitOps
 
+Code changes in Git are tracked
 
+Changes made directly in Kubernetes are not tracked
 
-4.	GitOps Principles
-1. Declarative:
-The system’s desired state must be described declaratively (YAML).
-Kubernetes manifests define what the system should look like.
+CI pipelines provide tracking, but traditional CD does not
+
+How GitOps Helps
+
+Ensures all deployments happen via Git
+
+Enforces consistency between Git and the cluster
+
+Can be used for application deployment and infrastructure management
+
+3️⃣ GitOps Workflow (High Level)
+
+DevOps Engineer updates Kubernetes YAML manifests in GitHub
+
+A Pull Request (PR) is created
+
+Team member reviews and approves the PR
+
+GitOps tool (Argo CD) detects changes in Git
+
+Argo CD deploys changes to the Kubernetes cluster
+
+Argo CD continuously ensures:
+
+Git state == Cluster state
+
+4️⃣ GitOps Principles
+1. Declarative
+
+Desired state is defined declaratively (YAML)
+
+Kubernetes manifests describe what the system should look like
 
 2. Versioned and Immutable
-Desired state is stored in Git.
+
+Desired state is stored in Git
+
 Git enforces:
+
 Versioning
+
 Immutability
+
 Complete change history
 
 3. Pulled Automatically
-Software agents (like Argo CD) pull changes from Git.
-No manual push to Kubernetes.
+
+GitOps agents (e.g., Argo CD) pull changes from Git
+
+No manual push to Kubernetes
 
 4. Continuously Reconciled
-Agents continuously compare:
-Desired state (Git)
-Actual state (Cluster)
-If drift is detected, it is automatically corrected.
 
+GitOps agents continuously compare:
 
+Desired State (Git)
 
-5.	Is GitOps Only for Kubernetes?
+Actual State (Cluster)
 
-No, GitOps is a general principle.
+Any drift is automatically corrected
 
+5️⃣ Is GitOps Only for Kubernetes?
 
+❌ No. GitOps is a general principle.
 
+✅ However, most popular GitOps tools are focused on Kubernetes.
 
-6.	However, popular GitOps tools like Argo CD and Flux mainly target Kubernetes.
+6️⃣ Advantages of GitOps
 
-Advantages of GitOps
-Security
-Full version history (audit trail
+Improved security
+
+Full version history (audit trail)
+
 Automatic upgrades
-Auto-healing of unwanted changes
+
+Auto-healing of unauthorized changes
+
 Continuous reconciliation
 
+7️⃣ Popular GitOps Tools
+Tool	GitOps Support
+Argo CD	✅ GitOps-native
+Flux	✅ GitOps-native
+Jenkins	❌ Not GitOps-native
+Spinnaker	⚠️ Partial GitOps support
+8️⃣ GitOps in a Nutshell
+Git  <---- sync ----  Argo CD  ---- sync ---->  Kubernetes
 
 
+Argo CD keeps GitHub YAML files and Kubernetes in sync
 
-7.	Popular GitOps Tools:
+Any change in Git is automatically deployed
 
-Argo CD
-Flux
-Jenkins ❌ (Not GitOps-native)
-Spinnaker (supports GitOps patterns but not pure GitOps)
+Desired state is always enforced
 
-
-
-
-8.	GitOps in a Nutshell:
-Git  <----sync----  Argo CD  ----sync---->  Kubernetes
-
-
-Argo CD maintains sync between GitHub YAML files and Kubernetes.
-Any change in Git is automatically deployed.
-Desired state is always enforced.
-
-9.	Argo CD Architecture
-
+9️⃣ Argo CD Architecture
 Core Components
-API Server: Used by UI and CLI and Handles authentication and authorization
-Dex: Adds SSO capabilities (OIDC, LDAP, etc.)
-Repo Server: Connects to Git repositories and Fetches manifests and desired state
-Application Controller: Connects to Kubernetes and Compares actual vs desired state and Applies changes if needed
-Redis: Used for caching application data
+1. API Server
 
-10.	Architecture Summary
+Used by UI and CLI
 
-Repo Server talks to Git.
-Application Controller talks to Kubernetes.
-Both compare states and keep the cluster in sync.
+Handles authentication and authorization
 
+2. Dex
 
-Argo CD Installation (Basic)
+Provides SSO support
 
+Supports OIDC, LDAP, etc.
+
+3. Repo Server
+
+Connects to Git repositories
+
+Fetches manifests and desired state
+
+4. Application Controller
+
+Connects to Kubernetes
+
+Compares desired vs actual state
+
+Applies changes if required
+
+5. Redis
+
+Used for caching application data
+
+🔟 Architecture Summary
+
+Repo Server → Talks to Git
+
+Application Controller → Talks to Kubernetes
+
+Both continuously compare and keep the cluster in sync
+
+🔧 Argo CD Installation (Basic)
 Step 1: Create Namespace
 kubectl create namespace argocd
 
 Step 2: Install Argo CD
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl apply -n argocd -f \
+https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 Step 3: Verify Pods
 kubectl get pods -n argocd -w
@@ -119,54 +172,79 @@ kubectl get pods -n argocd -w
 Step 4: Check Services
 kubectl get svc -n argocd
 
-You will see argocd-server.
 
-Step 5: Expose Argo CD UI
-By default, Argo CD runs as ClusterIP.
+You will see:
 
-Edit service:
+argocd-server
+
+🌐 Expose Argo CD UI
+Step 5: Change Service Type to NodePort
 kubectl edit svc argocd-server -n argocd
 
+
 Change:
+
 type: NodePort
 
 Step 6: Access Argo CD UI
 kubectl get svc argocd-server -n argocd
+
+
+OR use port-forward:
+
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 
 
-Copy Node IP or Server Ip address with Port
-Open in browser using HTTP/HTTPS
+Open browser:
 
-Step 7: Get Admin Password
+https://<Node-IP>:<NodePort>
+OR
+https://localhost:8080
+
+🔐 Get Argo CD Admin Password
+Default Credentials
+
 Username: admin
-Password: 
+
+Get Secret
 kubectl get secrets -n argocd
 kubectl describe secret argocd-initial-admin-secret -n argocd
 
-
-Decode password:
+Decode Password
 echo <password> | base64 --decode
 
-Example Applications for Practice
+📦 Example Applications for Practice
+
 Official Argo CD examples:
+
 https://github.com/argoproj/argocd-example-apps
 
-Creating an Application in Argo CD (UI)
+🚀 Creating an Application in Argo CD (UI)
 
 Click Create Application
+
 Enter:
+
 Application Name
+
 Project Name
+
 Sync Policy → Automatic
-Repository URL → GitHub repo URL
+
+Repository URL → GitHub repo
+
 Revision → HEAD
-Path → folder containing YAML (example: guestbook)
+
+Path → Folder containing YAML (e.g., guestbook)
+
 Cluster URL → Auto-populated
+
 Namespace → default
+
 Click Create
 
-Deployment Verification
+✅ Deployment Verification
 kubectl get deploy
 
-Confirms application is deployed via Argo CD.
+
+✔️ Confirms application is deployed via Argo CD
