@@ -1,199 +1,201 @@
-##Multi-Cluster Deployment with GitOps (Argo CD)
+## **Multi-Cluster Deployment with GitOps (Argo CD)**
 
-1. What is Multi-Cluster Deployment?
+---
 
-Organizations use multiple Kubernetes clusters for different environments:
+## **1. What is Multi-Cluster Deployment?**
 
-Dev
+Organizations use **multiple Kubernetes clusters** for different environments:
 
-QA
+- Dev  
+- QA  
+- Pre-Prod  
+- Prod  
 
-Pre-Prod
+Each environment runs on a **separate Kubernetes cluster**.
 
-Prod
+For new features, developers may request **new clusters (feature clusters)**.
 
-Each environment runs on a separate Kubernetes cluster.
+---
 
-For new features, developers may request new clusters (feature clusters).
+## **2. Traditional CI/CD vs GitOps**
 
-2. Traditional CI/CD vs GitOps
-Traditional CI/CD (Drawbacks)
+### **Traditional CI/CD (Drawbacks)**
 
 Deployments are done using:
 
-Shell scripts
+- Shell scripts  
+- Python scripts  
+- Ansible  
 
-Python scripts
+**Problems:**
 
-Ansible
+- No proper tracking of changes  
+- Anyone can manually change YAML in the cluster  
+- No visibility on who changed what  
+- Hard to identify root cause when application fails  
+- No automatic rollback  
 
-Problems:
+---
 
-No proper tracking of changes
+## **3. GitOps Approach**
 
-Anyone can manually change YAML in the cluster
+### **Key Concept**
 
-No visibility on who changed what
+- Git is the **single source of truth**
+- CI pulls application code from Git
+- CD pulls Kubernetes manifests from Git
 
-Hard to identify root cause when application fails
+### **GitOps Tools**
 
-No automatic rollback
+- Argo CD  
+- Flux  
+- Spinnaker  
 
-3. GitOps Approach
-Key Concept
+---
 
-Git is the single source of truth
+## **4. How Argo CD Works**
 
-CI pulls application code from Git
-
-CD pulls Kubernetes manifests from Git
-
-GitOps Tools
-
-Argo CD
-
-Flux
-
-Spinnaker
-
-4. How Argo CD Works
-
-Argo CD is a Kubernetes Controller
-
-It continuously monitors:
-
-Git repository
-
-Kubernetes cluster state
+- Argo CD is a **Kubernetes Controller**
+- It continuously monitors:
+  - Git repository
+  - Kubernetes cluster state
 
 All Kubernetes manifests must be stored in Git:
 
-Deployments
+- Deployments  
+- Services  
+- ConfigMaps  
+- Secrets  
 
-Services
-
-ConfigMaps
-
-Secrets
-
-Desired vs Actual State
+### **Desired vs Actual State**
 
 If someone manually modifies resources in the cluster:
 
-Argo CD detects configuration drift
+- Argo CD detects configuration drift  
+- Automatically reverts the change  
+- Syncs cluster state back to Git  
 
-Automatically reverts the change
+**Example:**
 
-Syncs cluster state back to Git
+- Git value: `replicas: 5`  
+- Manual change: `replicas: 10`  
+- Argo CD reverts it back to `5`
 
-Example:
+---
 
-Git value: replicas: 5
+## **5. Benefits of Argo CD (GitOps)**
 
-Manual change: replicas: 10
+- Tracking  
+- Auditing  
+- Monitoring  
+- Auto-healing  
+- Auto-rollback  
+- Secure deployments  
+- No manual cluster changes  
 
-Argo CD reverts it back to 5
+---
 
-5. Benefits of Argo CD (GitOps)
+## **6. Argo CD Deployment Models**
 
-Tracking
+### **1️⃣ Hub-Spoke Model (Centralized)**
 
-Auditing
+- One central **Hub cluster**
+- Argo CD installed only on the hub
+- Hub manages multiple spoke clusters (K1, K2, K3)
 
-Monitoring
-
-Auto-healing
-
-Auto-rollback
-
-Secure deployments
-
-No manual cluster changes
-
-6. Argo CD Deployment Models
-1️⃣ Hub-Spoke Model (Centralized)
-
-One central Hub cluster
-
-Argo CD installed only on the hub
-
-Hub manages multiple spoke clusters (K1, K2, K3)
-
-Flow:
+**Flow:**
 
 Git → Argo CD (Hub) → Multiple Clusters
 
-2️⃣ Standalone Model
+yaml
+Copy code
 
-Argo CD installed on each cluster
+---
 
-Each cluster deploys applications independently
+### **2️⃣ Standalone Model**
 
-Flow:
+- Argo CD installed on each cluster
+- Each cluster deploys applications independently
+
+**Flow:**
 
 Git → Argo CD (Dev)
 Git → Argo CD (QA)
 Git → Argo CD (Stage)
 
-7. CI Pipeline (Jenkins Example)
-CI Stages
+yaml
+Copy code
 
-Build
+---
 
-Unit Tests (UT)
+## **7. CI Pipeline (Jenkins Example)**
 
-Static Code Analysis
+### **CI Stages**
 
-SAST
+- Build  
+- Unit Tests (UT)  
+- Static Code Analysis  
+- SAST  
+- DAST  
+- Docker Image Build  
+- Trivy Scan  
 
-DAST
+### **CD**
 
-Docker Image Build
+- Deployment handled by **Argo CD via GitOps**
 
-Trivy Scan
+---
 
-CD
+## **8. Architecture Overview**
 
-Deployment handled by Argo CD via GitOps
-
-8. Architecture Overview
 Git Repository
-      ↓
- Argo CD Controller
-      ↓
- Kubernetes Cluster(s)
+↓
+Argo CD Controller
+↓
+Kubernetes Cluster(s)
 
-9. Prerequisites
+yaml
+Copy code
 
-kubectl
+---
 
-eksctl
+## **9. Prerequisites**
 
-AWS CLI
+- kubectl  
+- eksctl  
+- AWS CLI  
+- Argo CD CLI  
+- AWS account access  
 
-Argo CD CLI
+---
 
-AWS account access
+## **10. Setup kubectl**
 
-10. Setup kubectl
-Download kubectl
+### **Download kubectl**
+
+```bash
 curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.34.2/2025-11-13/bin/linux/arm64/kubectl
-
 Download checksum
+bash
+Copy code
 curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.34.2/2025-11-13/bin/linux/arm64/kubectl.sha256
-
 Verify checksum
+bash
+Copy code
 sha256sum -c kubectl.sha256
-
 Apply execute permissions
+bash
+Copy code
 chmod +x ./kubectl
-
 Move binary to PATH
+bash
+Copy code
 mkdir -p $HOME/bin
 cp ./kubectl $HOME/bin/kubectl
 export PATH=$HOME/bin:$PATH
-
 11. Setup eksctl
+bash
+Copy code
 ARCH=amd64
 PLATFORM=$(uname -s)_$ARCH
 
@@ -204,67 +206,75 @@ curl -sL "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_ch
 
 tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp
 sudo install -m 0755 /tmp/eksctl /usr/local/bin
-
 12. Install AWS CLI
+bash
+Copy code
 sudo apt update && sudo apt upgrade -y
 sudo apt install unzip curl -y
 
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
 unzip awscliv2.zip
 sudo ./aws/install
-
 Verify
+bash
+Copy code
 aws --version
-
 Configure AWS
+bash
+Copy code
 aws configure
-
 13. EKS Cluster Creation (Example)
+bash
+Copy code
 eksctl create cluster --name hub-cluster --region us-west-1
 eksctl create cluster --name spoke-cluster-1 --region us-west-1
 eksctl create cluster --name spoke-cluster-2 --region us-west-2
-
 Verify Clusters
+bash
+Copy code
 kubectl config get-contexts | grep us-west
-
 14. Switch to Hub Cluster
+bash
+Copy code
 kubectl config use-context hub-cluster
 kubectl config current-context
-
 15. Install Argo CD
+bash
+Copy code
 kubectl create namespace argocd
 
 kubectl apply -n argocd \
 -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
 Verify
+bash
+Copy code
 kubectl get pods -n argocd
-
 16. Configure Argo CD Server (Insecure Mode)
+bash
+Copy code
 kubectl get cm -n argocd
 kubectl edit configmap argocd-cmd-params-cm -n argocd
-
-
 Add:
 
+yaml
+Copy code
 data:
   server.insecure: "true"
-
-
 Verify:
 
+bash
+Copy code
 kubectl describe deployment argocd-server -n argocd
-
 17. Expose Argo CD UI
+bash
+Copy code
 kubectl get svc -n argocd
 kubectl edit svc argocd-server -n argocd
-
-
 Change:
 
+yaml
+Copy code
 type: NodePort
-
-
 Copy NodePort IP and Port
 
 Open in browser
@@ -272,15 +282,15 @@ Open in browser
 Update EC2 Security Group inbound rules if required
 
 18. Login to Argo CD UI
+bash
+Copy code
 kubectl get secrets -n argocd
 kubectl describe secret argocd-initial-admin-secret -n argocd
-
-
 Decode password:
 
+bash
+Copy code
 echo <base64-password> | base64 --decode
-
-
 Login details:
 
 Username: admin
@@ -288,10 +298,10 @@ Username: admin
 Password: decoded value
 
 19. Add Spoke Clusters to Argo CD
+bash
+Copy code
 argocd login <ARGOCD_IP>:<PORT>
 argocd cluster add <spoke-cluster-context>
-
-
 Repeat for all spoke clusters.
 
 Verify in UI:
@@ -302,7 +312,6 @@ Refresh → All clusters visible
 
 20. Deploy Application to Multiple Clusters
 Steps
-
 Create application in Argo CD UI
 
 Provide:
@@ -320,15 +329,14 @@ Namespace
 Repeat for other clusters
 
 21. Verification
+bash
+Copy code
 kubectl get pods
-
-
 Update YAML in Git
 
 Argo CD syncs changes automatically (within ~3 minutes)
 
 22. Summary
-
 CI → Git
 
 CD → Argo CD
@@ -338,5 +346,3 @@ Git is the single source of truth
 No manual cluster changes
 
 Secure, scalable, and auditable deployments
-
-If you want next:
